@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <WinSock2.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,24 +31,35 @@ int main(int argc, char* argv[])
 	receiver_address.sin_family = AF_INET;
 	receiver_address.sin_port = htons(INPUT_PORT2); //TODO need to generate this number
 	receiver_address.sin_addr.s_addr = INADDR_ANY;
-
-	printf("sender socket: IP address = %s port = %s\n", (char*)sender_address.sin_family, (char*)INPUT_PORT1);
-	printf("receiver socket: IP address = %s port = %s\n", (char*)receiver_address.sin_family, (char*)INPUT_PORT2);
-
+	
 	//bind the sockets
-	bind(listen_input_channel, (struct sockaddr*) &sender_address, sizeof(sender_address));
-	bind(listen_output_channel, (struct sockaddr*) &receiver_address, sizeof(receiver_address));
+	int input_status = bind(listen_input_channel, (struct sockaddr*)&sender_address, sizeof(sender_address));
+	int output_status = bind(listen_output_channel, (struct sockaddr*) &receiver_address, sizeof(receiver_address));
+
+	//char* iip = inet_ntoa(sender_address.sin_addr);
+	//char pport = sender_address.sin_port;
+	//printf("sender socket: IP address = %s port = %s\n", iip, pport);
+	//printf("receiver socket: IP address = %s port = %s\n", (char*)INADDR_ANY, (char*)INPUT_PORT2);
+
+	printf("binded successfully\n");
 
 	listen(listen_input_channel, 1);
-	int sender_socket = accept(listen_input_channel, (struct sockaddr*)&sender_address, sizeof(sender_address));
-
-	listen(listen_output_channel, 1);
-	int receiver_socket = accept(listen_output_channel, (struct sockaddr*)&receiver_address, sizeof(receiver_address));
-
-	//receive package from sender
+	printf("listening to sender\n");
 	char received_pack[MSG_SIZE];
-	recv(listen_input_channel, received_pack, sizeof(received_pack), 0);
-	printf(received_pack);
+	int received=0;
+	while (received == 0)
+	{
+		SOCKET sender_socket = accept(listen_input_channel, (struct sockaddr*)&sender_address, sizeof(sender_address));
+		//receive package from sender
+		received = recv(sender_socket, received_pack, sizeof(received_pack), 0);
+		if (received)
+			printf("%s", received_pack);
+	}
+
+	
+	listen(listen_output_channel, 1);
+	printf("listening to receiver\n");
+	int receiver_socket = accept(listen_output_channel, (struct sockaddr*)&receiver_address, sizeof(receiver_address));
 
 	//TODO add noise
 
