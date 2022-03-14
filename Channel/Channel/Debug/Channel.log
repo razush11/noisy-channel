@@ -1,9 +1,6 @@
 ﻿  main_ch.c
-C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(21,58): warning C4133: 'function': incompatible types - from 'sockaddr_in *' to 'const sockaddr *'
-C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(27,61): warning C4133: 'function': incompatible types - from 'sockaddr_in *' to 'sockaddr *'
-C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(27,82): warning C4047: 'function': 'int *' differs in levels of indirection from 'unsigned int'
-C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(27,63): warning C4024: 'accept': different types for formal and actual parameter 3
-C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(28,47): warning C4047: 'function': 'char *' differs in levels of indirection from 'int'
-C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(28,32): warning C4024: 'recv': different types for formal and actual parameter 2
-C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(30,11): warning C4477: 'printf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'int'
-C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(28): error C4700: uninitialized local variable 'recieved_buffer' used
+C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(41,108): warning C4047: 'function': 'int *' differs in levels of indirection from 'unsigned int'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(41,86): warning C4024: 'accept': different types for formal and actual parameter 3
+C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(44,115): warning C4047: 'function': 'int *' differs in levels of indirection from 'unsigned int'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(44,91): warning C4024: 'accept': different types for formal and actual parameter 3
+  Channel.vcxproj -> C:\Users\razpe\Documents\GitHub\Computer Communications\Master\Debug\Channel.exe

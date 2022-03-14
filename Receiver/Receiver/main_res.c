@@ -1,23 +1,38 @@
-#include "winsock2.h"
+#include <WinSock2.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char* argv[])
+#define BUFFER_SIZE 270
+#define INPUT_PORT 1234
+
+int main()
 {
 	// initialize windows networking
 	WSADATA wsaData;
 	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != NO_ERROR)
 		printf("Error at WSAStartup()\n");
-	// create the socket that will listen for incoming TCP connections
-	SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
-	struct sockaddr_in remote_addr;
-	remote_addr.sin_family = AF_INET;
-	remote_addr.sin_addr.s_addr = inet_addr(REMOTE_HOST_IP);
-	remote_addr.sin_port = htons(IN_PORT);
-	status = connect(s, (SOCKADDR*)&remote_addr, sizeof(remote_addr));
 
-	sent = send(s, send_buf, MSG_SIZE, 0);
-	printf(" --> %d Sent\n", sent);
-	return 0;
+	//create the socket
+	int network_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+	struct sockaddr_in server_address;
+	server_address.sin_family = AF_INET;
+	server_address.sin_port = htons(INPUT_PORT); //TODO receive number from server
+	server_address.sin_addr.s_addr = INADDR_ANY;
+
+	int con_stat = connect(network_socket, (struct sockaddr*)&server_address, sizeof(server_address));
+	//check for connection
+	if (con_stat == -1)
+		printf("connection error");
+
+	//receive data from channel
+	char received_pack[BUFFER_SIZE]; 
+	recv(network_socket, received_pack, sizeof(received_pack), 0);
+	printf(received_pack);
+
+	//close socket
+	closesocket(network_socket);
+
+	return(0);
 }
