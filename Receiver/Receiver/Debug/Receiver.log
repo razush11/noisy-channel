@@ -1,1 +1,33 @@
-﻿
+﻿  main_res.c
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(5,10): error C2065: 'WSADATA': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(5,10): error C2146: syntax error: missing ';' before identifier 'wsaData'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(5,17): error C2065: 'wsaData': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(6,26): warning C4013: 'WSAStartup' undefined; assuming extern returning int
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(6,35): warning C4013: 'MAKEWORD' undefined; assuming extern returning int
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(6,51): error C2065: 'wsaData': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(7,25): error C2065: 'NO_ERROR': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(8,9): warning C4013: 'printf' undefined; assuming extern returning int
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(10,4): error C2065: 's': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(10,12): warning C4013: 'socket' undefined; assuming extern returning int
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(10,20): error C2065: 'AF_INET': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(10,33): error C2065: 'SOCK_STREAM': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(11,21): error C2079: 'remote_addr' uses undefined struct 'sockaddr_in'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(12,14): error C2224: left of '.sin_family' must have struct/union type
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(12,34): error C2065: 'AF_INET': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(13,14): error C2224: left of '.sin_addr' must have struct/union type
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(13,41): warning C4013: 'inet_addr' undefined; assuming extern returning int
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(13,56): error C2065: 'REMOTE_HOST_IP': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(14,14): error C2224: left of '.sin_port' must have struct/union type
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(14,30): warning C4013: 'htons' undefined; assuming extern returning int
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(14,38): error C2065: 'IN_PORT': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(15,9): error C2065: 'status': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(15,18): warning C4013: 'connect' undefined; assuming extern returning int
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(15,20): error C2065: 's': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(15,31): error C2065: 'SOCKADDR': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(15,32): error C2059: syntax error: ')'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(17,7): error C2065: 'sent': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(17,13): warning C4013: 'send' undefined; assuming extern returning int
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(17,15): error C2065: 's': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(17,25): error C2065: 'send_buf': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(17,35): error C2065: 'MSG_SIZE': undeclared identifier
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(18,31): error C2065: 'sent': undeclared identifier
