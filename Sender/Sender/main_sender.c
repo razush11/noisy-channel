@@ -25,12 +25,17 @@ int main()
 	int con_stat = connect(network_socket, (struct sockaddr*)&server_address, sizeof(server_address));
 	//check for connection
 	if (con_stat == -1)
-		printf("connection error");
-
+		printf("connection error\n");
+	else
+		printf("connected successfully to IP address = %s port = %d\n", inet_ntoa(server_address.sin_addr), ntohs(server_address.sin_port));
+	
 	//send data to channel
-	char pack_to_send[BUFFER_SIZE]="whats up dude"; //TODO needs to be replaced with input file!
+	char pack_to_send[BUFFER_SIZE]="whats up dude?\n"; //TODO needs to be replaced with input file!
+	printf("package to be sent: %s\n", pack_to_send);
 	int sent = send(network_socket, pack_to_send, sizeof(pack_to_send), 0);
-	printf("sent! %d", sent);
+	printf("sent! %d, %s", sent, pack_to_send);
+
+	getchar();
 	//close socket
 	closesocket(network_socket);
 

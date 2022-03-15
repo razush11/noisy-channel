@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 #define BUFFER_SIZE 270
-#define INPUT_PORT 1234
 
 int main()
 {
@@ -20,19 +19,22 @@ int main()
 
 	struct sockaddr_in server_address;
 	server_address.sin_family = AF_INET;
-	server_address.sin_port = htons(INPUT_PORT); //TODO receive number from server
-	server_address.sin_addr.s_addr = INADDR_ANY;
+	server_address.sin_port = htons(23456); //TODO receive number from server
+	server_address.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	int con_stat = connect(network_socket, (struct sockaddr*)&server_address, sizeof(server_address));
 	//check for connection
 	if (con_stat == -1)
-		printf("connection error");
+		printf("connection error\n");
+	else
+		printf("connected successfully to IP address = %s port = %d\n", inet_ntoa(server_address.sin_addr), ntohs(server_address.sin_port));
 
-	//receive data from channel
-	char received_pack[BUFFER_SIZE]; 
-	recv(network_socket, received_pack, sizeof(received_pack), 0);
-	printf(received_pack);
+	//receive data to channel
+	char received_pack[BUFFER_SIZE]; //TODO needs to be replaced with input file!
+	int received = recv(network_socket, received_pack, sizeof(received_pack), 0);
+	printf("received! %d, %s", received, received_pack);
 
+	getchar();
 	//close socket
 	closesocket(network_socket);
 
