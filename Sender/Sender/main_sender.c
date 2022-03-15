@@ -1,9 +1,10 @@
+#define _CRT_SECURE_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <WinSock2.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #define BUFFER_SIZE 270
-#define INPUT_PORT 2345
 
 int main()
 {
@@ -18,8 +19,8 @@ int main()
 
 	struct sockaddr_in server_address;
 	server_address.sin_family = AF_INET;
-	server_address.sin_port = htons(INPUT_PORT); //TODO receive number from server
-	server_address.sin_addr.s_addr = INADDR_ANY;
+	server_address.sin_port = htons(12345); //TODO receive number from server
+	server_address.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	int con_stat = connect(network_socket, (struct sockaddr*)&server_address, sizeof(server_address));
 	//check for connection
@@ -28,8 +29,8 @@ int main()
 
 	//send data to channel
 	char pack_to_send[BUFFER_SIZE]="whats up dude"; //TODO needs to be replaced with input file!
-	send(network_socket, pack_to_send, sizeof(pack_to_send),0);
-
+	int sent = send(network_socket, pack_to_send, sizeof(pack_to_send), 0);
+	printf("sent! %d", sent);
 	//close socket
 	closesocket(network_socket);
 

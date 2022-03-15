@@ -23,48 +23,50 @@ int main(int argc, char* argv[])
 	//define the sender address
 	struct sockaddr_in sender_address;
 	sender_address.sin_family = AF_INET;
-	sender_address.sin_port = htons(INPUT_PORT1); //TODO need to generate this number
-	sender_address.sin_addr.s_addr = INADDR_ANY;
+	sender_address.sin_port = htons(12345); //TODO need to generate this number
+	sender_address.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+	int input_status = bind(listen_input_channel, (struct sockaddr*)&sender_address, sizeof(sender_address));
 
 	//define the receiver address
 	struct sockaddr_in receiver_address;
 	receiver_address.sin_family = AF_INET;
-	receiver_address.sin_port = htons(INPUT_PORT2); //TODO need to generate this number
-	receiver_address.sin_addr.s_addr = INADDR_ANY;
-	
-	//bind the sockets
-	int input_status = bind(listen_input_channel, (struct sockaddr*)&sender_address, sizeof(sender_address));
+	receiver_address.sin_port = htons(23456); //TODO need to generate this number
+	receiver_address.sin_addr.s_addr = inet_addr("127.0.0.1");
+
 	int output_status = bind(listen_output_channel, (struct sockaddr*) &receiver_address, sizeof(receiver_address));
 
-	//char* iip = inet_ntoa(sender_address.sin_addr);
-	//char pport = sender_address.sin_port;
-	//printf("sender socket: IP address = %s port = %s\n", iip, pport);
-	//printf("receiver socket: IP address = %s port = %s\n", (char*)INADDR_ANY, (char*)INPUT_PORT2);
+	//print ips and ports of sender and receiver
+	printf("sender socket: IP address = %s port = %d\n", inet_ntoa(sender_address.sin_addr), ntohs(sender_address.sin_port));
+	printf("receiver socket: IP address = %s port = %d\n", inet_ntoa(receiver_address.sin_addr), ntohs(receiver_address.sin_port));
 
-	printf("binded successfully\n");
-
+	//waiting for connection
 	listen(listen_input_channel, 1);
 	printf("listening to sender\n");
 	char received_pack[MSG_SIZE];
-	int received=0;
-	while (received == 0)
+	int received=-1;
+	while (received == -1)
 	{
 		SOCKET sender_socket = accept(listen_input_channel, (struct sockaddr*)&sender_address, sizeof(sender_address));
 		//receive package from sender
 		received = recv(sender_socket, received_pack, sizeof(received_pack), 0);
-		if (received)
-			printf("%s", received_pack);
+		if (received >= 0)
+			printf("connected! received: %s", received_pack);
 	}
-
-	
-	listen(listen_output_channel, 1);
-	printf("listening to receiver\n");
-	int receiver_socket = accept(listen_output_channel, (struct sockaddr*)&receiver_address, sizeof(receiver_address));
 
 	//TODO add noise
 
-	//send package to receiver
-	send(listen_output_channel, received_pack, sizeof(received_pack), 0);
+	listen(listen_output_channel, 1);
+	printf("listening to receiver\n");
+	int sent = -1;
+	while (sent == -1)
+	{
+		SOCKET receiver_socket = accept(listen_output_channel, (struct sockaddr*)&receiver_address, sizeof(receiver_address));
+		//send package to receiver
+		sent = send(receiver_socket, received_pack, sizeof(received_pack), 0);
+		if (sent >= 0)
+			printf("connected! received: %s", received_pack);
+	}
 
 	//closes the socket
 	closesocket(listen_input_channel);
