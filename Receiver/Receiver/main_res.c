@@ -15,14 +15,21 @@ int main()
 		printf("Error at WSAStartup()\n");
 
 	//create the socket
-	int network_socket = socket(AF_INET, SOCK_STREAM, 0);
+	int network_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	char host_ip[BUFFER_SIZE];
+	char my_port[BUFFER_SIZE];
+	scanf("%s", host_ip);
+	scanf("%s", my_port);
+	printf("trying to connect to Host IP=%s, Port=%s\n", host_ip, my_port);
 
 	struct sockaddr_in server_address;
 	server_address.sin_family = AF_INET;
-	server_address.sin_port = htons(23456); //TODO receive number from server
-	server_address.sin_addr.s_addr = inet_addr("127.0.0.1");
+	server_address.sin_port = htons(atoi(my_port)); //TODO receive number from server
+	server_address.sin_addr.s_addr = inet_addr(host_ip);
 
-	int con_stat = connect(network_socket, (struct sockaddr*)&server_address, sizeof(server_address));
+	int addr_size = sizeof(server_address);
+
+	int con_stat = connect(network_socket, (struct sockaddr*)&server_address, addr_size);
 	//check for connection
 	if (con_stat == -1)
 		printf("connection error\n");
@@ -34,7 +41,9 @@ int main()
 	int received = recv(network_socket, received_pack, sizeof(received_pack), 0);
 	printf("received! %d, %s", received, received_pack);
 
-	getchar();
+	
+	char diditwork[3];
+	scanf("%s", diditwork);
 	//close socket
 	closesocket(network_socket);
 
