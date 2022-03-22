@@ -5,14 +5,22 @@
 #include <stdlib.h>
 
 #define BUFFER_SIZE 270
+#define STOP_SIGNAL -1
 
 #define DEBUG
 
+//global variables
+int first_loop_indicator = 0;
+char file_name[BUFFER_SIZE];
+
 FILE* open_file()
 {
-	char file_name[BUFFER_SIZE];
-	printf("enter file name:");
-	scanf("%[^\n]", file_name);
+	if (first_loop_indicator == 0)
+	{
+		fflush(stdin);
+		printf("enter file name:");
+		scanf("%[^\n]", file_name);
+	}
 	if (strcmp(file_name, "quit") == 0)
 		return NULL;
 	FILE* file = fopen(file_name, "w");
@@ -68,17 +76,28 @@ int main(int argc, char* argv[])
 
 		//receive data to channel
 		unsigned int received_pack = 0;
-		int received = 0;
-		while (received != -1)
+		int received = -1;
+		while (TRUE)
 		{
 			received = recv(network_socket, &received_pack, sizeof(received_pack), 0);
-			printf("received! %u\n", received_pack);
-			//TODO decode
-			fprintf(dest_file,"%u", received_pack);
+			if (received != 0)
+			{
+				printf("received! %u\n", received_pack);
+				//TODO decode
+				fprintf(dest_file, "%u", received_pack);
+			}
+			else
+				break;
 		}
 
 		fclose(dest_file);
 		closesocket(network_socket);
+		first_loop_indicator = 1;
+		fflush(stdin);
+		printf("enter file name:");
+		scanf("%[^\n]", file_name);
+		if (strcmp(file_name, "quit") == 0)
+			break;
 	}
 	return(0);
 }

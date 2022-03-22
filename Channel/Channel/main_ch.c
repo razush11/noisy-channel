@@ -96,7 +96,6 @@ int main(int argc, char* argv[])
 	int receiver_port = 0;
 	int sockaddr_size = sizeof(struct sockaddr_in);
 
-	char continue_ans[3];
 
 	struct in_addr channel_addr;
 	char host_name[HOST_NAME_SIZE + 1] = { 0 };
@@ -131,8 +130,6 @@ int main(int argc, char* argv[])
 			received = recv(listen_input_channel, &received_pack, sizeof(received_pack), 0);
 			if (received != 0)
 			{
-				if (received_pack == STOP_SIGNAL)
-					break;
 				printf("received: %u\n", received_pack);
 				//TODO ADD NOISE
 				AddingNoise(&noised_pack, received_pack);
@@ -140,15 +137,19 @@ int main(int argc, char* argv[])
 				if (sent != -1)
 					printf("sent package - %u\n", noised_pack);
 			}
+			else
+				break;
 		}
 
 		//closes the socket
 		closesocket(listen_input_channel);
 		closesocket(listen_output_channel);
 
+		char continue_ans[BLOCK_W_HAMMING];
 		printf("continue? (yes/no)\n");
+		fflush(stdin);
 		scanf("%s", continue_ans);
-		if (!strcmp(continue_ans, "no"))
+		if (strcmp(continue_ans, "yes")!=0)
 			break;
 	}
 	return 0;

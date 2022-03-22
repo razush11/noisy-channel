@@ -14,9 +14,13 @@
 #define STOP_SIGNAL -1
 
 #define DEBUG
+
+//global variables
 int bits_cursor_offset = 0;
 int end_of_file = 0;
 int file_length = 0;
+int first_loop_indicator = 0;
+char file_name[BUFFER_SIZE];
 
 int ReadBlockFromFile(FILE* open_file)
 {
@@ -112,15 +116,18 @@ void HammingBlock(unsigned int* send_block, unsigned int block)
 	{
 		*send_block |= ((encoded_block[i] & curs) << (30 - i));
 	}
-	printf("done encoding");
+	printf("done encoding\n");
 }
 
 FILE* open_file()
 {
-	char file_name[BUFFER_SIZE];
-	printf("enter file name:");
 #ifndef DEBUG
-	scanf("%[^\n]", file_name);
+	if (first_loop_indicator == 0)
+	{
+		fflush(stdin);
+		printf("enter file name:");
+		scanf("%[^\n]", file_name);
+	}
 #else
 	strcpy(file_name, "C:\\Users\\razpe\\Documents\\GitHub\\Computer Communications\\Master\\Debug\\myfile.txt");
 	getchar();
@@ -216,11 +223,18 @@ int main(int argc, char* argv[])
 			if (end_of_file)
 				break;
 		}
-		char signal = STOP_SIGNAL;
-		int sent = send(network_socket, &signal, 1, 0); // signal end of transmission
 
-		printf("file length: %d bits\n sent: %d bits\n", read_counter * 26, read_counter * 31);//TODO need to fix bits-bytes
+		printf("file length: %d bits\n sent: %d bits\n", read_counter * 26, read_counter * 31);
+
+		//closing
 		closesocket(network_socket);
+		fclose(orig_file);
+		first_loop_indicator = 1;
+		fflush(stdin);
+		printf("enter file name:");
+		scanf("%[^\n]", file_name);
+		if (strcmp(file_name, "quit") == 0)
+			break;
 	}
 	return(0);
 }
