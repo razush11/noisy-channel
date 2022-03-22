@@ -1,2 +1,3 @@
 ﻿  main_ch.c
+C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(97,7): warning C4101: 'sent_pack': unreferenced local variable
   Channel.vcxproj -> C:\Users\razpe\Documents\GitHub\Computer Communications\Master\Debug\Channel.exe

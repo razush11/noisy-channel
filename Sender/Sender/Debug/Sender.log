@@ -1,2 +1,4 @@
 ﻿  main_sender.c
+C:\Users\razpe\Documents\GitHub\Computer Communications\Sender\Sender\main_sender.c(141,28): warning C4133: 'function': incompatible types - from 'int *' to 'FILE *'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Sender\Sender\main_sender.c(141,30): warning C4020: 'ReadBlockFromFile': too many actual parameters
   Sender.vcxproj -> C:\Users\razpe\Documents\GitHub\Computer Communications\Master\Debug\Sender.exe

@@ -6,7 +6,9 @@
 
 #define BUFFER_SIZE 270
 
-int main()
+#define DEBUG
+
+int main(int argc, char* argv[])
 {
 	// initialize windows networking
 	WSADATA wsaData;
@@ -18,8 +20,12 @@ int main()
 	int network_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	char host_ip[BUFFER_SIZE];
 	char my_port[BUFFER_SIZE];
-	scanf("%s", host_ip);
-	scanf("%s", my_port);
+
+	//strcpy_s(host_ip, sizeof(argv[1]), argv[1]);
+	//strcpy_s(my_port, sizeof(argv[2]), argv[2]);
+	strcpy(host_ip, argv[1]);
+	strcpy(my_port, argv[2]);
+
 	printf("trying to connect to Host IP=%s, Port=%s\n", host_ip, my_port);
 
 	struct sockaddr_in server_address;
