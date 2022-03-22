@@ -5,12 +5,15 @@
 #include <stdlib.h>
 
 #define HOST_NAME_SIZE 350
-#define BLOCK_WO_HAMMING 26
 #define BLOCK_W_HAMMING 31
 #define STOP_SIGNAL -1
 
 #define DEBUG
-
+void AddingNoise(unsigned int* dest, unsigned int r_pack)
+{
+	//add noise
+	*dest = r_pack;
+}
 void WSADATAInit(WSADATA *new_wsadata) //checks if WSADATA went correctly
 {
 	int iResult = WSAStartup(MAKEWORD(2, 2), new_wsadata);
@@ -93,8 +96,6 @@ int main(int argc, char* argv[])
 	int receiver_port = 0;
 	int sockaddr_size = sizeof(struct sockaddr_in);
 
-	char received_pack[BLOCK_W_HAMMING];
-	char sent_pack[BLOCK_W_HAMMING];
 	char continue_ans[3];
 
 	struct in_addr channel_addr;
@@ -103,7 +104,7 @@ int main(int argc, char* argv[])
 	struct hostent* host_ip = gethostbyname(host_name);
 
 	memcpy(&channel_addr, host_ip->h_addr_list[0], sockaddr_size);
-
+	
 #ifdef DEBUG
 	receiver_port = 55594;
 	sender_port = 55593;
@@ -123,19 +124,21 @@ int main(int argc, char* argv[])
 		SOCKET listen_output_channel = accept(receiver_socket, (struct sockaddr*)&receiver_address, &sockaddr_size);
 		printf("receiver connected\n");
 
-		//receive packages from sender
+		unsigned int received_pack = 0;
+		unsigned int noised_pack = 0;
 		while (received != -1)
 		{
-			received = recv(listen_input_channel, received_pack, sizeof(received_pack), 0);
+			received = recv(listen_input_channel, &received_pack, sizeof(received_pack), 0);
 			if (received != 0)
 			{
-				if (received_pack[0] == (char)STOP_SIGNAL)
+				if (received_pack == STOP_SIGNAL)
 					break;
-				printf("received: %s", received_pack);
+				printf("received: %u\n", received_pack);
 				//TODO ADD NOISE
-				sent = send(listen_output_channel, received_pack, sizeof(received_pack), 0);
+				AddingNoise(&noised_pack, received_pack);
+				sent = send(listen_output_channel, &noised_pack, sizeof(noised_pack), 0);
 				if (sent != -1)
-					printf("sent package - %s", received_pack);
+					printf("sent package - %u\n", noised_pack);
 			}
 		}
 
@@ -146,10 +149,7 @@ int main(int argc, char* argv[])
 		printf("continue? (yes/no)\n");
 		scanf("%s", continue_ans);
 		if (!strcmp(continue_ans, "no"))
-		{
-			printf("byeeeeeeeeee"); //TODO remove
 			break;
-		}
 	}
 	return 0;
 }

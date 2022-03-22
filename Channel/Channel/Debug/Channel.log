@@ -1,3 +1,4 @@
 ﻿  main_ch.c
-C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(97,7): warning C4101: 'sent_pack': unreferenced local variable
+C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(131,56): warning C4133: 'function': incompatible types - from 'unsigned int *' to 'char *'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(139,52): warning C4133: 'function': incompatible types - from 'unsigned int *' to 'const char *'
   Channel.vcxproj -> C:\Users\razpe\Documents\GitHub\Computer Communications\Master\Debug\Channel.exe

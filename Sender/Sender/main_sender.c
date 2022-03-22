@@ -3,6 +3,8 @@
 #include <WinSock2.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <string.h>
 
 #define BUFFER_SIZE 5006
 #define BLOCK_WO_HAMMING 26
@@ -13,12 +15,15 @@
 
 #define DEBUG
 int bits_cursor_offset = 0;
+int end_of_file = 0;
+int file_length = 0;
+
 int ReadBlockFromFile(FILE* open_file)
 {
 	char block[5];
 	fgets(block, BLOCK_SIZE_BYTES + 1, open_file);
 	int loc = ftell(open_file);
-	fseek(open_file, loc - 1, 0);
+	fseek(open_file,-1, SEEK_CUR);
 	unsigned int retval = 0;
 
 	retval |= (block[0] & (0xff >> bits_cursor_offset));
@@ -33,20 +38,81 @@ int ReadBlockFromFile(FILE* open_file)
 	retval |= (block[3] & (0xff >> (6 - bits_cursor_offset)));
 
 	bits_cursor_offset = (bits_cursor_offset + 2) % 8;
-
+	if (loc + 3 > file_length)
+		end_of_file = 1;
 	return retval;
 }
 
-void HammingBlock(unsigned int* send, unsigned int block)
+int ham_calc(unsigned int* send_block,int position, int c_l)
 {
-	char unpacked_block[26];
-	int curs = 0x01 << 26;
+	int count = 0, i, j;
+	i = position - 1;
+	while (i < c_l)
+	{
+		for (j = i; j < i + position; j++)
+		{
+			if (send_block[j] == 1)
+				count++;
+		}
+		i = i + 2 * position;
+	}
+	if (count % 2 == 0)
+		return 0;
+	else
+		return 1;
+}
+
+void HammingBlock(unsigned int* send_block, unsigned int block)
+{
+	unsigned int unpacked_block[26];
+	unsigned int encoded_block[31];
+	int curs = 0x01 << 25;
+
+	//create array of binary representation of the block
 	for (int i=0; i<26; i++)
 	{
-		unpacked_block[i] = block & curs;
+		unpacked_block[i] = (block & curs)>>(26-(i+1));
 		curs >>= 1;
 	}
 
+	int n, i, p_n = 0, c_l, j, k;
+	i = 0;
+
+	//Hamming encoding fo the array
+	while (26 > (int)pow(2, i) - (i + 1))
+	{
+		p_n++;
+		i++;
+	}
+	c_l = p_n + 26;
+	j = k = 0;
+	for (i = 0; i < c_l; i++)
+	{
+		if (i == ((int)pow(2, k) - 1))
+		{
+			encoded_block[i] = 0;
+			k++;
+		}
+		else
+		{
+			encoded_block[i] = unpacked_block[j];
+			j++;
+		}
+	}
+	for (i = 0; i < p_n; i++)
+	{
+		int position = (int)pow(2, i);
+		int value = ham_calc(encoded_block,position, c_l);
+		encoded_block[position - 1] = value;
+	}
+
+	curs = 0x01;
+	//convert the bit representation array into hex
+	for (int i = 0; i < 31; i++)
+	{
+		*send_block |= ((encoded_block[i] & curs) << (30 - i));
+	}
+	printf("done encoding");
 }
 
 FILE* open_file()
@@ -65,13 +131,25 @@ FILE* open_file()
 	if (file == NULL)
 	{
 		printf("Error reading file: %s", file_name);
-		exit(0);
+		exit(1);
 	}
+	fseek(file, 0, SEEK_END);
+	file_length = ftell(file);
+	fseek(file, 0, SEEK_SET);
 	return file;
 }
 
 int main(int argc, char* argv[])
 {
+/*
+#ifdef DEBUG
+	FILE* orig_file = open_file();
+	unsigned int block = ReadBlockFromFile(orig_file);
+	unsigned int s_block=0;
+	HammingBlock(&s_block, block);
+#endif
+*/
+
 	if (argc != 3)
 	{
 		printf("Input arguments are not valid. Command line arguments should include: IP and Port number");
@@ -110,31 +188,33 @@ int main(int argc, char* argv[])
 		{
 			printf("connection error\n");
 			closesocket(network_socket);
-			exit(-1);
+			exit(1);
 		}
 		else
 			printf("connected successfully to IP address = %s port = %d\n", inet_ntoa(server_address.sin_addr), ntohs(server_address.sin_port));
 
 		//handling file
+		end_of_file = 0;
 		FILE* orig_file = open_file();
 		if (orig_file == NULL)
 		{
 			closesocket(network_socket);
-			exit(0);
+			break;
 		}
 
-		//phrasing file
-		int block;
-		int s_block;
+		unsigned int block;
+		unsigned int s_block=0;
 		int read_counter = 0;
+		//main operation loop
 		while (!feof(orig_file))
 		{
-			block = ReadBlockFromFile(orig_file);
+			block = ReadBlockFromFile(orig_file); //phrasing file into 26 bits chunks
 			read_counter++;
-			//TODO HAMMING
-			HammingBlock(s_block, block);
-			int sent = send(network_socket, s_block, sizeof(s_block), 0);
-			printf("sent! %s", s_block);
+			HammingBlock(&s_block, block);//TODO HAMMING
+			int sent = send(network_socket, &s_block, sizeof(s_block), 0);
+			printf("sent! %u", s_block);
+			if (end_of_file)
+				break;
 		}
 		char signal = STOP_SIGNAL;
 		int sent = send(network_socket, &signal, 1, 0); // signal end of transmission

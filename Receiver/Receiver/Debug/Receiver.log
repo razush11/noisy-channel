@@ -1,2 +1,3 @@
 ﻿  main_res.c
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(74,50): warning C4133: 'function': incompatible types - from 'unsigned int *' to 'char *'
   Receiver.vcxproj -> C:\Users\razpe\Documents\GitHub\Computer Communications\Master\Debug\Receiver.exe

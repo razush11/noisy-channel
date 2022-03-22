@@ -1,4 +1,4 @@
 ﻿  main_sender.c
-C:\Users\razpe\Documents\GitHub\Computer Communications\Sender\Sender\main_sender.c(141,28): warning C4133: 'function': incompatible types - from 'int *' to 'FILE *'
-C:\Users\razpe\Documents\GitHub\Computer Communications\Sender\Sender\main_sender.c(141,30): warning C4020: 'ReadBlockFromFile': too many actual parameters
+C:\Users\razpe\Documents\GitHub\Computer Communications\Sender\Sender\main_sender.c(78,6): warning C4101: 'n': unreferenced local variable
+C:\Users\razpe\Documents\GitHub\Computer Communications\Sender\Sender\main_sender.c(214,44): warning C4133: 'function': incompatible types - from 'unsigned int *' to 'const char *'
   Sender.vcxproj -> C:\Users\razpe\Documents\GitHub\Computer Communications\Master\Debug\Sender.exe
