@@ -146,6 +146,9 @@
   <ItemGroup>
     <ClCompile Include="main_ch.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="channel.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

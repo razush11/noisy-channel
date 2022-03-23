@@ -3,16 +3,55 @@
 #include <WinSock2.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include "channel.h"
 
 #define HOST_NAME_SIZE 350
 #define BLOCK_W_HAMMING 31
 #define STOP_SIGNAL -1
+#define RANDOM_NOISE 0
+#define DET_NOISE 1
 
 #define DEBUG
-void AddingNoise(unsigned int* dest, unsigned int r_pack)
+int bitcounter = 2;
+
+void FetchNoise(noisetype* noise,char* argv[])
+{
+	int noise_type = -1;
+	if (strcmp(argv[1], "-r") == 0) //random noise
+	{
+		noise->noise_type = RANDOM_NOISE;
+		noise->prob = atof(argv[2])/(pow(2,16));
+		noise->ran_seed = atoi(argv[3]);
+		printf("random noise, prob = %f, seed = %d", noise->prob, noise->ran_seed);
+	}
+	else if (strcmp(argv[1], "-d") == 0)//determinist noise
+	{
+		noise->ran_seed = atoi(argv[2]);
+		noise->noise_type = DET_NOISE;
+		printf("determinist noise, n = %d", noise->ran_seed);
+	}
+	else
+	{
+		printf("unknown noise type, exiting");
+		exit(1);
+	}
+}
+void AddingNoise(unsigned int* dest, unsigned int r_pack, noisetype* noise)
 {
 	//add noise
-	*dest = r_pack;
+	int noisemask = 0x0;
+	int mask_temp = 0x1;
+	srand(noise->ran_seed);
+
+	for (int i = 0; i < 32; i++)
+	{
+		if ((((bitcounter + 1) % noise->ran_seed) == 0 && noise->noise_type == DET_NOISE) || (rand() < (noise->prob * (RAND_MAX + 1)) && noise->noise_type == RANDOM_NOISE))
+			noisemask |= mask_temp;
+		mask_temp <<= 1;
+		bitcounter += 1;
+	}
+	*dest = r_pack ^ noisemask;
 }
 void WSADATAInit(WSADATA *new_wsadata) //checks if WSADATA went correctly
 {
@@ -65,49 +104,27 @@ int main(int argc, char* argv[])
 	WSADATA wsaData;
 	WSADATAInit(&wsaData);
 
-	//assign argv inputs
-	//noise_type=0 stands for random noise
-	//noise_type=1 stands for determinist noise
-	int noise_type = -1;
-	if (strcmp(argv[1], "-r") == 0) //random noise
-	{
-		double prob = atof(argv[2]);
-		int ran_seed = atoi(argv[3]);
-		noise_type = 0;
-		printf("random noise, prob = %f, seed = %d", prob, ran_seed);
-	}
-	else if (strcmp(argv[1], "-d") == 0)//determinist noise
-	{
-		int noise_n = atoi(argv[2]);
-		noise_type = 1;
-		printf("determinist noise, n = %d", noise_n);
-	}
-	else
-	{
-		printf("unknown noise type, exiting");
-		exit(1);
-	}
+	//determine noise type
+	struct noisetype* noise=malloc(sizeof(noisetype));
+	FetchNoise(noise, argv);
 	
 	// create the socket that will listen for incoming TCP connections
-
 	struct sockaddr_in sender_address;
 	struct sockaddr_in receiver_address;
 	int sender_port = 0;
 	int receiver_port = 0;
 	int sockaddr_size = sizeof(struct sockaddr_in);
-
-
 	struct in_addr channel_addr;
 	char host_name[HOST_NAME_SIZE + 1] = { 0 };
 	gethostname(host_name, HOST_NAME_SIZE - 1);
 	struct hostent* host_ip = gethostbyname(host_name);
-
 	memcpy(&channel_addr, host_ip->h_addr_list[0], sockaddr_size);
 	
 #ifdef DEBUG
 	receiver_port = 55594;
 	sender_port = 55593;
 #endif
+
 	//main receiving/sending loop
 	while (TRUE)
 	{
@@ -132,7 +149,7 @@ int main(int argc, char* argv[])
 			{
 				printf("received: %u\n", received_pack);
 				//TODO ADD NOISE
-				AddingNoise(&noised_pack, received_pack);
+				AddingNoise(&noised_pack, received_pack,noise);
 				sent = send(listen_output_channel, &noised_pack, sizeof(noised_pack), 0);
 				if (sent != -1)
 					printf("sent package - %u\n", noised_pack);
@@ -141,6 +158,7 @@ int main(int argc, char* argv[])
 				break;
 		}
 
+		bitcounter = 0;
 		//closes the socket
 		closesocket(listen_input_channel);
 		closesocket(listen_output_channel);
