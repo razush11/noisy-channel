@@ -13,7 +13,7 @@
 #define DET_NOISE 1
 
 #define DEBUG
-int bitcounter = 2;
+int bitcounter = 0;
 
 void FetchNoise(noisetype* noise,char* argv[])
 {
@@ -44,7 +44,7 @@ void AddingNoise(unsigned int* dest, unsigned int r_pack, noisetype* noise)
 	int mask_temp = 0x1;
 	srand(noise->ran_seed);
 
-	for (int i = 0; i < 32; i++)
+	for (int i = 0; i < 31; i++)
 	{
 		if ((((bitcounter + 1) % noise->ran_seed) == 0 && noise->noise_type == DET_NOISE) || (rand() < (noise->prob * (RAND_MAX + 1)) && noise->noise_type == RANDOM_NOISE))
 			noisemask |= mask_temp;
@@ -105,21 +105,21 @@ int main(int argc, char* argv[])
 	WSADATAInit(&wsaData);
 
 	//determine noise type
-	struct noisetype* noise=malloc(sizeof(noisetype));
+	struct noisetype* noise = malloc(sizeof(noisetype));
 	FetchNoise(noise, argv);
-	
+
 	// create the socket that will listen for incoming TCP connections
 	struct sockaddr_in sender_address;
 	struct sockaddr_in receiver_address;
 	int sender_port = 0;
 	int receiver_port = 0;
-	int sockaddr_size = sizeof(struct sockaddr_in);
+	long int sockaddr_size = sizeof(struct sockaddr_in);
 	struct in_addr channel_addr;
-	char host_name[HOST_NAME_SIZE + 1] = { 0 };
+	char host_name[HOST_NAME_SIZE + 1] = {0};
 	gethostname(host_name, HOST_NAME_SIZE - 1);
 	struct hostent* host_ip = gethostbyname(host_name);
-	memcpy(&channel_addr, host_ip->h_addr_list[0], sockaddr_size);
-	
+	memcpy(&channel_addr, host_ip->h_addr_list[0], sizeof(struct in_addr));
+
 #ifdef DEBUG
 	receiver_port = 55594;
 	sender_port = 55593;
@@ -128,13 +128,16 @@ int main(int argc, char* argv[])
 	//main receiving/sending loop
 	while (TRUE)
 	{
+		//init of sender&receiver sockets
 		SOCKET sender_socket = SocketInit(&sender_address, &sender_port);
 		printf("sender socket: IP address = %s port = %d\n", inet_ntoa(channel_addr), sender_port);
-		SOCKET receiver_socket= SocketInit(&receiver_address, &receiver_port);
+		SOCKET receiver_socket = SocketInit(&receiver_address, &receiver_port);
 		printf("receiver socket: IP address = %s port = %d\n", inet_ntoa(channel_addr), receiver_port);
 		printf("listening\n");
+
 		int received = 0;
 		int sent = -1;
+		//accepting connections
 		SOCKET listen_input_channel = accept(sender_socket, (struct sockaddr*)&sender_address, &sockaddr_size);
 		printf("sender connected\n");
 		SOCKET listen_output_channel = accept(receiver_socket, (struct sockaddr*)&receiver_address, &sockaddr_size);
@@ -144,12 +147,13 @@ int main(int argc, char* argv[])
 		unsigned int noised_pack = 0;
 		while (received != -1)
 		{
+			//receive each pack of 31 bits separately
 			received = recv(listen_input_channel, &received_pack, sizeof(received_pack), 0);
 			if (received != 0)
 			{
 				printf("received: %u\n", received_pack);
 				//TODO ADD NOISE
-				AddingNoise(&noised_pack, received_pack,noise);
+				AddingNoise(&noised_pack, received_pack, noise);
 				sent = send(listen_output_channel, &noised_pack, sizeof(noised_pack), 0);
 				if (sent != -1)
 					printf("sent package - %u\n", noised_pack);
@@ -167,7 +171,7 @@ int main(int argc, char* argv[])
 		printf("continue? (yes/no)\n");
 		fflush(stdin);
 		scanf("%s", continue_ans);
-		if (strcmp(continue_ans, "yes")!=0)
+		if (strcmp(continue_ans, "yes") != 0)
 			break;
 	}
 	return 0;

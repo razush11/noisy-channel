@@ -68,15 +68,15 @@ int ham_calc(unsigned int* send_block,int position, int c_l)
 
 void HammingBlock(unsigned int* send_block, unsigned int block)
 {
-	unsigned int unpacked_block[26];
-	unsigned int encoded_block[31];
-	int curs = 0x01 << 25;
+	unsigned int unpacked_block[BLOCK_WO_HAMMING];
+	unsigned int encoded_block[BLOCK_W_HAMMING];
+	int curs = 0x01;
 
 	//create array of binary representation of the block
 	for (int i=0; i<26; i++)
 	{
-		unpacked_block[i] = (block & curs)>>(26-(i+1));
-		curs >>= 1;
+		unpacked_block[i] = ((block & curs)>>i);
+		curs <<= 1;
 	}
 
 	int n, i, p_n = 0, c_l, j, k;
@@ -114,7 +114,7 @@ void HammingBlock(unsigned int* send_block, unsigned int block)
 	//convert the bit representation array into hex
 	for (int i = 0; i < 31; i++)
 	{
-		*send_block |= ((encoded_block[i] & curs) << (30 - i));
+		*send_block |= ((encoded_block[i] & curs) << i);
 	}
 	printf("done encoding\n");
 }
@@ -222,6 +222,8 @@ int main(int argc, char* argv[])
 			printf("sent! %u", s_block);
 			if (end_of_file)
 				break;
+			block = 0;
+			s_block=0;
 		}
 
 		printf("file length: %d bits\n sent: %d bits\n", read_counter * 26, read_counter * 31);

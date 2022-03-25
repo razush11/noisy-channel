@@ -1,3 +1,5 @@
 ﻿  main_res.c
-C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(82,50): warning C4133: 'function': incompatible types - from 'unsigned int *' to 'char *'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(123,50): warning C4133: 'function': incompatible types - from 'unsigned int *' to 'char *'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(128,74): warning C4047: 'function': 'int *' differs in levels of indirection from 'int'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Receiver\Receiver\main_res.c(128,50): warning C4024: 'HammingDecoder': different types for formal and actual parameter 3
   Receiver.vcxproj -> C:\Users\razpe\Documents\GitHub\Computer Communications\Master\Debug\Receiver.exe
