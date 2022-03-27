@@ -11,7 +11,7 @@
 #define HAMMING_INDEXES 6
 #define STOP_SIGNAL -1
 
-#define DEBUG
+//#define DEBUG
 
 //global variables
 int first_loop_indicator = 0;
@@ -24,7 +24,7 @@ FILE* open_file()
 	if (first_loop_indicator == 0)
 	{
 		fflush(stdin);
-		printf("enter file name:");
+		printf("enter file name:\n");
 		scanf("%[^\n]", file_name);
 	}
 	if (strcmp(file_name, "quit") == 0)
@@ -38,7 +38,7 @@ FILE* open_file()
 	return file;
 }
 
-
+//spacing the block for the parity bits
 unsigned int SpacingForParity(unsigned int block)
 {
 	unsigned int ret = 0;
@@ -54,7 +54,7 @@ unsigned int SpacingForParity(unsigned int block)
 	return ret;
 }
 
-
+//delete the parity bits spaces
 unsigned int UnspaceParity(unsigned int block)
 {
 	unsigned int ret = 0;
@@ -82,6 +82,7 @@ void HammingDecoder (unsigned int* decoded_pack, unsigned int received_pack)
 
 	unsigned  int c1 = 0, c2 = 0, c4 = 0, c8 = 0, c16 = 0;
 
+	//bitwise XOR of all relevant bits for the parity check
 	unsigned int to_xor = received_pack & mask_1;
 	while (to_xor > 0) c1 ^= (to_xor >>= 1) & 0x01;
 
@@ -136,7 +137,6 @@ int main(int argc, char* argv[])
 	printf("trying to connect to Host IP=%s, Port=%s\n", host_ip, my_port);
 #endif
 
-
 	while (TRUE)
 	{
 		//create the socket
@@ -177,19 +177,23 @@ int main(int argc, char* argv[])
 		while (TRUE)
 		{
 			received = recv(network_socket, &received_pack, sizeof(received_pack), 0);
-			printf("received: %u\n", received_pack);
+#ifdef DEBUG
+			printf("received: %u    ", received_pack);
+#endif
 			if (received != 0)
 			{
 				HammingDecoder(&decoded_pack, received_pack);
 #ifdef DEBUG 
 				printf("decoded %u\n", decoded_pack);
 #endif
+				//wtire the block back to the file, handling the leftovers to write full bytes only
 				i = cycles_counter % 4;
 				unsigned int mask = 0xff0000;
 				unsigned int left_overs_mask = 0xff;
 				left_overs = (decoded_pack & (left_overs_mask >> 2 * (4 - i - 1)));
 				decoded_pack >>= (i+1) * 2;
-				decoded_pack |= (0xff0000 & (old_left_overs << (22 - (i * 2))));
+				decoded_pack |= (0xff0000 & (old_left_overs << (24 - (i * 2))));
+
 				for (int j=0;j<3;j++)
 				{
 					cur_byte = (char)((mask & decoded_pack)>>(8*(2-j)));
@@ -197,6 +201,7 @@ int main(int argc, char* argv[])
 					mask >>= 8;
 				}
 				old_left_overs = left_overs;
+
 				if (i==3)
 				{
 					cur_byte = (char)left_overs;
@@ -212,6 +217,8 @@ int main(int argc, char* argv[])
 		}
 
 		printf("received: %d bytes \nwrote: %d bytes \ncorrected: %d bytes\n", (31 * cycles_counter)/8, (26 * cycles_counter)/8, error_correction_counter);
+
+		//closing file and socket, check if there's something else to do
 		fclose(dest_file);
 		closesocket(network_socket);
 		first_loop_indicator = 1;

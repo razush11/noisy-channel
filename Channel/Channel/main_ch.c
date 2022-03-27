@@ -12,10 +12,10 @@
 #define RANDOM_NOISE 0
 #define DET_NOISE 1
 
-#define DEBUG
 
 //global variables
 int bitcounter = 0;
+int flipped_counter = 0;
 
 //fetching noise type and values from the arguments
 void FetchNoise(noisetype* noise,char* argv[])
@@ -56,7 +56,10 @@ void AddingNoise(unsigned int* dest, unsigned int r_pack, noisetype* noise)
 	for (int i = 0; i < 31; i++)
 	{
 		if ((((bitcounter + 1) % noise->ran_seed) == 0 && noise->noise_type == DET_NOISE) || (rand() < (noise->prob * (RAND_MAX + 1)) && noise->noise_type == RANDOM_NOISE))
+		{
 			noisemask |= mask_temp;
+			flipped_counter++;
+		}
 		mask_temp <<= 1;
 		bitcounter += 1;
 	}
@@ -152,13 +155,13 @@ int main(int argc, char* argv[])
 		printf("sender socket: IP address = %s port = %d\n", inet_ntoa(channel_addr), sender_port);
 		SOCKET receiver_socket = SocketInit(&receiver_address, &receiver_port);
 		printf("receiver socket: IP address = %s port = %d\n", inet_ntoa(channel_addr), receiver_port);
-		printf("listening\n");
 
 		//accepting connections
 		SOCKET listen_input_channel = accept(sender_socket, (struct sockaddr*)&sender_address, &sockaddr_size);
-		printf("sender connected\n");
 		SOCKET listen_output_channel = accept(receiver_socket, (struct sockaddr*)&receiver_address, &sockaddr_size);
-		printf("receiver connected\n");
+#ifdef DEBUG
+		printf("connected\n");
+#endif
 
 		int received = 0;
 		int sent = -1;
@@ -186,7 +189,8 @@ int main(int argc, char* argv[])
 			else
 				break;
 		}
-
+		printf("retransmitted: %d bytes, flipped: %d bytes\n", (bitcounter) / 8, flipped_counter);
+		flipped_counter = 0;
 		bitcounter = 0;
 		//closes the socket
 		closesocket(listen_input_channel);

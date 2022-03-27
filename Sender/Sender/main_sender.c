@@ -6,14 +6,14 @@
 #include <math.h>
 #include <string.h>
 
-#define BUFFER_SIZE 5006
+#define BUFFER_SIZE 5000
 #define BLOCK_WO_HAMMING 26
 #define BLOCK_W_HAMMING 31
 #define BLOCK_SIZE_BYTES 4
 
 #define STOP_SIGNAL -1
 
-#define DEBUG
+//#define DEBUG
 
 //global variables
 int bits_cursor_offset = 0;
@@ -49,6 +49,7 @@ int ReadBlockFromFile(FILE* open_file)
 	return retval;
 }
 
+//create spaces for the parity bits
 unsigned int SpacingForParity(unsigned int block)
 {
 	unsigned int ret = 0;
@@ -83,6 +84,7 @@ void HammingBlock(unsigned int* send_block, unsigned int block)
 
 	unsigned  int p1 = 0, p2 = 0, p4 = 0, p8 = 0, p16 = 0;
 
+	//bitwise XOR of all relevant bits for the parity bit
 	unsigned int to_xor = block & mask_1;
 	while (to_xor > 0) p1 ^= (to_xor >>= 1) & 0x01;
 
@@ -97,7 +99,8 @@ void HammingBlock(unsigned int* send_block, unsigned int block)
 
 	to_xor = block & mask_16;
 	while (to_xor > 0) p16 ^= (to_xor >>= 1) & 0x01;
-	// push parity bits in
+
+	// push parity bits into the block in the correct places
 	block |= (p1 | (p2 << 1) | (p4 << 3) | (p8 << 7) | (p16 << 15));
 	(*send_block) = block;
 }
@@ -198,7 +201,7 @@ int main(int argc, char* argv[])
 			HammingBlock(&s_block, block);//TODO HAMMING
 			int sent = send(network_socket, &s_block, sizeof(s_block), 0);
 #ifdef DEBUG
-			printf("sent! %u\n", s_block);
+			printf("encoded: %u\n", s_block);
 #endif
 			if (end_of_file)
 				break;
@@ -208,13 +211,13 @@ int main(int argc, char* argv[])
 
 		printf("file length: %d bytes\nsent: %d bytes\n", (read_counter * 26)/8, (read_counter * 31)/8);
 
-		//closing
+		//closing file and sockets
 		closesocket(network_socket);
 		fclose(orig_file);
 		first_loop_indicator = 1;
-		fflush(stdin);
 		printf("enter file name:\n");
-		scanf("%[^\n]", file_name);
+		fflush(stdin);
+		int i = scanf("%[^\n]", file_name);
 		if (strcmp(file_name, "quit") == 0)
 			break;
 	}

@@ -10,7 +10,7 @@
 #define RANDOM_NOISE 0
 #define DET_NOISE 1
 
-#define DEBUG
+//#define DEBUG
 
 typedef struct noisetype
 {

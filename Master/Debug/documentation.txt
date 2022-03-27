@@ -1,0 +1,52 @@
+Noisy channel
+submitted by:
+Raz Oren ID 308425305
+Noor El Deen Masarwa ID 209544733
+
+The project should lunched as described in PA1-2022.pdf
+
+Documentation:
+
+Channel:
+Channel receive the noise type and values as arguments.
+Initializing windows networking (in WSADATAInint function)
+Fetch noise type from provided arguments into a new struct defined in the header. The struct contains the type of the noise and the relevant values of it (in FetchNoise function).
+Create 2 socket addresses for the sender and receiver, default port set to 0 to get an available port from the system.
+Fetch the local machine's IP
+Create 2 sockets using the ports and addresses and print out the IP and port for the sender and receiver (in SocketInit function).
+The function creates the sockets, bind them and set them into listening mode.
+Now the server is waiting for both sender and receiver to connect.
+After connection the main operation loop is lunched, the channel receive 31 bits from the sender, adding noise, and send them to the receiver. This goes on until the end of the sender's steam.
+Adding noise – using the noise type struct, the channel builds a mask to use for bitwise flipping the desired bit using XOR bitwise function. The mask is created according to the noise type, for determinist noise, every n's bit is on (bit counter runs all along the streaming process) and for random noise it set the bits on with probability of  n/2^16  using the provided seed. If the generated number is < than the probability * RAND_MAX than the bit is set on. After the 31 bits mask is ready, it simply XOR it with the block the channel reveived and senf it o the receiver.
+after all the packages were sent the channel exit's the loop, closing both sockets and asking whether to continue.
+Is the user type "yes" the process start all over again.
+ 
+Sender:
+Sender receive the IP address and Port number of the channel as arguments.
+Initializing WSADATA
+A socket is created, using the provided arguments and the sender tries to connect to the channel.
+If connection was successful it prints "enter file name:" and waits for the user to provide the input file's name (in open_file function), when the name is provided it opens the file and set it to read mode, if it fails its prints the error and exit. If the user writes "quit" it will exit as well. The end of the file buffer is saved.
+Now it enters the main sending loop of the function:
+Using "ReadBlockFromFile" function it reads 26 bits long block from the file, it reads 4 byte, take the relevant 26 bits and take the file's buffer one step backwards so next 26 bits will be read correctly (all using bitwise operations).
+The block is sent to HammingBlock function:
+Using masks it spaces the block to fit the parity bits (using SpacingForParity) function. Every parity bit is calculated using a mask XOR the block in a while loop, and using OR bitwise operation every parity bit is set to the correct palce in the Block.
+The encoded block is sent the the operation starts again.
+When the buffer reaches "EOF" the sender quits the loop, close both file and the Socket and prints the amount of byte read and sent. After that it prints "enter file name:" and starts over.
+
+Receiver:
+The receiver is getting the channels IP and the Port number as arguments.
+Initializing WSADATA
+A socket is created, using the provided arguments and the sender tries to connect to the channel.
+If connection was successful it prints "enter file name:" and waits for the user to provide the destination file's name (in open_file function), when the name is provided it opens the file and set it to read mode, if it fails its prints the error and exit. If the user writes "quit" it will exit as well.
+Now it enters the main receiving loop of the function:
+When receiving a 31 bits long stream, using the HammingDecoder function it decodes the Hamming as follows. Usint a mask it extracts the parity bits from the block, than using a bitwise XOR function in a loop it checks what the parity bit should’ve contain. XOR-ing the parity bit and the ecpected value informs us whether or not we found a mistake. Each parity bit that found out to be "wrong" contribute it value to a counter that determine which bit is wrong, if it fixable (1 bit error), that bit is switched using XOR with 1 in the correct position.
+If we had leftovers from previous block it will be added as MSB (leftover will be explained)
+After finishing the decoding process, we get a 26 bits block. Since we writing to the file in bytes the receiver only 3 bytes are full and we get a leftover.
+Using a 4 loops for, we decide which bits to take into the 3 bytes print, and the leftover is stored for next block.
+Every 4 loops we get an extra byte from the leftovers, se it print it to the file as well.
+When the stream is over the receiver quits the loop, close the file and the socket and ask the user for the next file name, quits if the use types “quit”, otherwise it starts the process again.
+
+Known bugs: None.
+
+Other issues:
+3 days delay for handing the assignment approved by Yoav Chachmovitz due to Noor's medical sickness approval.

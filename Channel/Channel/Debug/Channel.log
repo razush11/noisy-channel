@@ -1,4 +1,4 @@
 ﻿  main_ch.c
-C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(170,56): warning C4133: 'function': incompatible types - from 'unsigned int *' to 'char *'
-C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(180,52): warning C4133: 'function': incompatible types - from 'unsigned int *' to 'const char *'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(173,56): warning C4133: 'function': incompatible types - from 'unsigned int *' to 'char *'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Channel\Channel\main_ch.c(183,52): warning C4133: 'function': incompatible types - from 'unsigned int *' to 'const char *'
   Channel.vcxproj -> C:\Users\razpe\Documents\GitHub\Computer Communications\Master\Debug\Channel.exe
