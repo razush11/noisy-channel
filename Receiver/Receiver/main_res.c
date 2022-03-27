@@ -190,24 +190,18 @@ int main(int argc, char* argv[])
 				i = cycles_counter % 4;
 				unsigned int mask = 0xff0000;
 				unsigned int left_overs_mask = 0xff;
+				left_overs = 0;
 				left_overs = (decoded_pack & (left_overs_mask >> 2 * (4 - i - 1)));
-				decoded_pack >>= (i+1) * 2;
-				decoded_pack |= (0xff0000 & (old_left_overs << (24 - (i * 2))));
+				decoded_pack >>= (i + 1) * 2;
+				decoded_pack |= ((0xff & old_left_overs) << (24 - (i * 2)));
 
-				for (int j=0;j<3;j++)
+				for (int j = 0; j < 3; j++)
 				{
-					cur_byte = (char)((mask & decoded_pack)>>(8*(2-j)));
+					cur_byte = (char)((mask & decoded_pack) >> (8 * (2 - j)));
 					fwrite(&cur_byte, 1, 1, dest_file);
 					mask >>= 8;
 				}
 				old_left_overs = left_overs;
-
-				if (i==3)
-				{
-					cur_byte = (char)left_overs;
-					fwrite(&cur_byte, 1, 1, dest_file);
-					old_left_overs = 0;
-				}
 			}
 			else
 				break;

@@ -1,4 +1,6 @@
 ﻿  main_sender.c
+C:\Users\razpe\Documents\GitHub\Computer Communications\Sender\Sender\main_sender.c(30,14): warning C4047: 'function': 'char *' differs in levels of indirection from 'char (*)[5]'
+C:\Users\razpe\Documents\GitHub\Computer Communications\Sender\Sender\main_sender.c(30,8): warning C4024: 'fgets': different types for formal and actual parameter 1
 C:\Users\razpe\Documents\GitHub\Computer Communications\Sender\Sender\main_sender.c(72,15): warning C4101: 'encoded_block': unreferenced local variable
 C:\Users\razpe\Documents\GitHub\Computer Communications\Sender\Sender\main_sender.c(71,15): warning C4101: 'unpacked_block': unreferenced local variable
 C:\Users\razpe\Documents\GitHub\Computer Communications\Sender\Sender\main_sender.c(202,44): warning C4133: 'function': incompatible types - from 'unsigned int *' to 'const char *'

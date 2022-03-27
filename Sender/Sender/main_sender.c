@@ -27,7 +27,7 @@ char file_name[BUFFER_SIZE];
 int ReadBlockFromFile(FILE* open_file)
 {
 	char block[5];
-	fread(&block, BLOCK_SIZE_BYTES,1, open_file);
+	fgets(&block, BLOCK_SIZE_BYTES+1, open_file);
 	int loc = ftell(open_file);
 	fseek(open_file,-1, SEEK_CUR);
 	unsigned int retval = 0;
@@ -41,7 +41,7 @@ int ReadBlockFromFile(FILE* open_file)
 	retval |= (block[2] & 0xff);
 
 	retval <<= (2 + bits_cursor_offset);
-	retval |= (block[3] & (0xff >> (6 - bits_cursor_offset)));
+	retval |= ((block[3] & 0xff) >> (6 - bits_cursor_offset));
 
 	bits_cursor_offset = (bits_cursor_offset + 2) % 8;
 	if (loc + 3 > file_length)
@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
 		first_loop_indicator = 1;
 		printf("enter file name:\n");
 		fflush(stdin);
-		int i = scanf("%[^\n]", file_name);
+		int i = scanf(" %[^\n]", file_name);
 		if (strcmp(file_name, "quit") == 0)
 			break;
 	}
